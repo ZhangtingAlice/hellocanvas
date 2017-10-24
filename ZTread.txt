@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>"姓名显示"</title>
+        <title>"Your Name"</title>
         <meta charset="UTF-8"> 
     </head> 
     <body>
         <div>
             <div >
-            <p >姓名</p>
+            <p >Your name</p>
             <input type="file" id="filepick">
-            <input type="button" value="显示" onclick="readfile()">
-            <input type="button" value="清除" onclick="clearCanvas()">
+            <input type="button" value="Display" onclick="readfile()">
+            <input type="button" value="Clear" onclick="clearCanvas()">
             </div>
             <div class="bg-right">
                 <canvas id="Mycanvas" width="1000" height="800"></canvas>
@@ -78,8 +78,8 @@
                     for(j=0;j<string[i].length-1;j++)
                     {
                          
-                        context.moveTo((string[i][j].x)*50,(string[i][j].y)*50);
-                        context.lineTo((string[i][j+1].x)*50,(string[i][j+1].y)*50);
+                        context.moveTo((string[i][j].x)*30,(string[i][j].y)*30);
+                        context.lineTo((string[i][j+1].x)*30,(string[i][j+1].y)*30);
                         
                     }
                 }
