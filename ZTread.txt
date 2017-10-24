@@ -1,20 +1,93 @@
-<html>
-<body>
-<script script type="text/javascript">
-function show()
-{
-    var reader = new FileReader();
-    reader.onload = function() 
-    {
-        alert(this.result)
-    }
-    var f = document.getElementById("filePicker").files[0];
-    reader.readAsText(f);
-}
-</script>
-<input type="file" name="file" id="filePicker"/>
-<div id = "div1">
-</div>
-<input type="button" value = "��ʾ"  onclick="show()"/>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>"姓名显示"</title>
+        <meta charset="UTF-8"> 
+    </head> 
+    <body>
+        <div>
+            <div >
+            <p >姓名</p>
+            <input type="file" id="filepick">
+            <input type="button" value="显示" onclick="readfile()">
+            <input type="button" value="清除" onclick="clearCanvas()">
+            </div>
+            <div class="bg-right">
+                <canvas id="Mycanvas" width="1000" height="800"></canvas>
+            </div>
+        </div>
+
+    <script>
+        function clearCanvas()
+        {  
+              var c=document.getElementById("Mycanvas");  
+              var context=c.getContext("2d");  
+              c.height=c.height;  
+        }
+        function Point(x,y)
+        {
+            this.x=x;
+            this.y=y;
+        }
+        
+        function readfile()
+        {   
+            
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,16-y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+                var c = document.getElementById("Mycanvas");
+                var context = c.getContext("2d");
+                context.beginPath();
+                context.lineWidth =8; 
+                context.strokeStyle="blue"; 
+                for(i=0;i<N+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {
+                         
+                        context.moveTo((string[i][j].x)*50,(string[i][j].y)*50);
+                        context.lineTo((string[i][j+1].x)*50,(string[i][j+1].y)*50);
+                        
+                    }
+                }
+                context.stroke();
+
+            }
+        
+        }
+    </script>
 </body>
-<html>
+</html>
