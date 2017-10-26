@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>"Your Name"</title>
+        <meta charset="UTF-8"> 
+    </head> 
+    <body>
+        <div>
+            <div >
+            <p >Your name：</p>
+            <input type="file" id="filepick">
+            </div>
+            <input type="button" value="Display" onclick="readfile()">
+            <input type="button" value="Clear" onclick="clearCanvas()">
+            <br/>
+            <form method=post>
+                平移变换:<br/>
+                        X<input type="text" name="Px">
+                        Y<input type="text" name="Py">
+                         <input type="button" value="平移" onclick="translation(this.form)"><br/>
+            
+                对称变换：<br/>
+                         
+                         <input type="button" value="关于X=7对称" onclick="symmetryX()"><br/>
+                        
+                          <input type="button" value=" 关于Y=7对称" onclick="symmetryY()"><br/>
+
+                旋转变换：<br/>
+                         
+                          <input type="button" value="逆时针旋转角度90°" onclick="rotation()"><br/>
+
+                比例变换：<br/>
+                (缩放倍数)<input type="text" name="Bx">
+                                <input type="button" value="变换" onclick="scaling(this.form)"><br/>
+                耸肩变换：<br/>
+                          <input type="button" value="耸肩变换" onclick="shrug()"><br/>
+                左斜变换：<br/>
+                          <input type="button" value="左斜变换" onclick="lefts()"><br/>
+
+            </form>
+            <div class="bg-right">
+                <canvas id="Mycanvas" width="1000" height="800"></canvas>
+            </div>
+        </div>
+
+    <script>
+        function clearCanvas()
+        {  
+              var c=document.getElementById("Mycanvas");  
+              var context=c.getContext("2d");  
+              c.height=c.height;  
+        }
+        function Point(x,y)
+        {
+            this.x=x;
+            this.y=y;
+        }
+        
+        function readfile()
+        {   
+            
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,16-y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+                var c = document.getElementById("Mycanvas");
+                var context = c.getContext("2d");
+                context.beginPath();
+                context.lineWidth =6; 
+                context.strokeStyle="blue"; 
+                for(i=0;i<N+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {
+                         
+                        context.moveTo((string[i][j].x)*20,(string[i][j].y)*20);
+                        context.lineTo((string[i][j+1].x)*20,(string[i][j+1].y)*20);
+                        
+                    }
+                }
+                context.stroke();
+
+            }
+        
+        }
+
+
+        function translation(form)
+        {
+            var x1=eval(form.Px.value);
+            var y1=eval(form.Py.value);  
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,16-y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+                var c = document.getElementById("Mycanvas");
+                var context = c.getContext("2d");
+                context.beginPath();
+                context.lineWidth =6; 
+                context.strokeStyle="blue"; 
+                for(i=0;i<N+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {
+                         
+                        context.moveTo((string[i][j].x)*20+x1*20,(string[i][j].y)*20+y1*20);
+                        context.lineTo((string[i][j+1].x)*20+x1*20,(string[i][j+1].y)*20+y1*20);
+                        
+                    }
+                }
+                context.stroke();
+
+            }
+        
+        }
+
+        function symmetryX()
+        {   
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,16-y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+                var c = document.getElementById("Mycanvas");
+                var context = c.getContext("2d");
+                context.beginPath();
+                context.lineWidth =6; 
+                context.strokeStyle="blue"; 
+                for(i=0;i<N+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {
+                         
+                        context.moveTo((14-string[i][j].x)*20,(string[i][j].y)*20);
+                        context.lineTo((14-string[i][j+1].x)*20,(string[i][j+1].y)*20);
+                        
+                    }
+                }
+                context.stroke();
+
+            }
+        
+        }
+
+        function symmetryY()
+        {   
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,16-y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+                var c = document.getElementById("Mycanvas");
+                var context = c.getContext("2d");
+                context.beginPath();
+                context.lineWidth =6; 
+                context.strokeStyle="blue"; 
+                for(i=0;i<N+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {
+                         
+                        context.moveTo((string[i][j].x)*20,(14-string[i][j].y)*20);
+                        context.lineTo((string[i][j+1].x)*20,(14-string[i][j+1].y)*20);
+                        
+                    }
+                }
+                context.stroke();
+
+            }
+        
+        }
+
+        function rotation()
+        {   
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,16-y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+                var c = document.getElementById("Mycanvas");
+                var context = c.getContext("2d");
+                context.beginPath();
+                context.lineWidth =6; 
+                context.strokeStyle="blue"; 
+                for(i=0;i<N+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {
+                         
+                        context.moveTo((16-string[i][j].y)*20,(string[i][j].x)*20);
+                        context.lineTo((16-string[i][j+1].y)*20,(string[i][j+1].x)*20);
+                        
+                    }
+                }
+                context.stroke();
+
+            }
+        
+        }
+
+        function scaling(form)
+        {   var B=eval(form.Bx.value);
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,16-y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+                var c = document.getElementById("Mycanvas");
+                var context = c.getContext("2d");
+                context.beginPath();
+                context.lineWidth =6; 
+                context.strokeStyle="blue"; 
+                for(i=0;i<N+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {
+                         
+                        context.moveTo((string[i][j].x)*B*20,(string[i][j].y)*B*20);
+                        context.lineTo((string[i][j+1].x)*B*20,(string[i][j+1].y)*B*20);
+                        
+                    }
+                }
+                context.stroke();
+
+            }
+        
+        }
+
+        function shrug()
+        { 
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,16-y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+                var c = document.getElementById("Mycanvas");
+                var context = c.getContext("2d");
+                context.beginPath();
+                context.lineWidth =6; 
+                context.strokeStyle="blue"; 
+                for(i=0;i<N+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {
+                         
+                        context.moveTo((string[i][j].x)*20,((string[i][j].y-string[i][j].x*Math.tan((Math.PI)/12))*20));
+                        context.lineTo((string[i][j+1].x)*20,((string[i][j+1].y-string[i][j+1].x*Math.tan((Math.PI)/12))*20));
+                        
+                    }
+                }
+                context.stroke();
+
+            }
+        
+        }
+
+        function lefts()
+        { 
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,16-y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+                var c = document.getElementById("Mycanvas");
+                var context = c.getContext("2d");
+                context.beginPath();
+                context.lineWidth =6; 
+                context.strokeStyle="blue"; 
+                for(i=0;i<N+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {
+                         
+                        context.moveTo(string[i][j].x*10+(string[i][j].y)/(Math.tan((Math.PI)/12*5))*20,(string[i][j].y)*20);
+                        context.lineTo(string[i][j+1].x*10+(string[i][j+1].y)/(Math.tan((Math.PI)/12*5))*20,(string[i][j+1].y)*20);
+                        
+                    }
+                }
+                context.stroke();
+
+            }
+        
+        }
+    </script>
+</body>
+</html>
