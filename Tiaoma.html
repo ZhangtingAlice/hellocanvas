@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head> 
+    <title>
+         Vaulting horse problem
+    </title>
+    <link rel='stylesheets' href='/stylesheets/style.css' />
+</head>
+<body>
+<h4>跳马问题</h4>
+<table  border="1" cellpadding="8">
+<tr>
+    <th>棋盘行数m</th>
+    <th>棋盘列数n</th>
+    <th>马初始位置x坐标（行号从0开始）</th>
+    <th>马初始位置y坐标（行号从0开始）</th>
+</tr>
+<tr>
+	<td>
+		<input type="text" id="rows" value="">
+	</td>
+    <td>
+        <input type="text" id="cols" value="">
+	</td>
+	<td>
+        <input type="text" id="X1" value="">
+	</td>
+	<td>
+        <input type="text" id="Y1" value="">
+	</td>
+</tr>
+<tr>
+	<td colspan="4">   
+		<button type="button" onclick=" Calculate()">计算</button>      
+    </td>
+</tr>
+<tr>
+	<td colspan="4">最终结果为：
+		<div id="rs" onclick=" Calculate()"></div>
+	</td>
+</tr>
+</table>
+<script type="text/javascript">
+  var Xi;
+  var X0=0;//棋盘的行
+  var Yi;
+  var Y0=0;//棋盘的列
+  var n=0;
+  var path=0; 
+  var bound; //棋盘的边界
+  var route = new Array(10000);//路线
+  var stack = new Array(10000);//栈
+
+  function points(x,y)
+  {
+    this.x=x;
+    this.y=y;
+  }    
+  var point = new points();
+  point.x=0;
+  point.y=0; //棋子的初始位置 
+
+  function rst(value)
+  {
+     this.value=value;
+  }
+  var rst1= new rst();//判断棋子有没有在棋盘内
+  var rst2= new rst(); //判断棋盘的每一格有没有被走过?
+  var rst3= new rst();
+  rst2.value=0;
+  
+  function jg(x,y)
+  {
+     if((x>Xi)||(x<X0)||(y>Yi)||(y<Y0))
+     {
+       rst1.value=1;//在棋盘外
+     }
+     else
+     {
+       rst1.value=0;//在棋盘内
+     }
+  }
+
+  function track(stack,x,y)//遍历
+  {
+      var top = 0; 
+     while(stack[top]!=null){
+      if((x==stack[0].x) && (y==stack[0].y))
+    {
+       rst2.value = 2; //回到起点
+       break;
+    }
+    else if((x==stack[top].x) && (y==stack[top].y))
+    {
+      rst2.value =1; //重复点
+      break;
+    }
+    top++;
+  if (stack[top]==null)
+    {
+      rst2.value = 0;//可走点
+    }
+   }
+  }
+
+  function Instack(x,y)//入栈
+  {
+     var top =0;
+     while(stack[top]!=null){
+     top++;
+     }
+     stack[top]=new points();
+     stack[top].x=x;
+     stack[top].y=y;                
+  }
+
+  function Next(stack,f)//
+  {
+        switch(f)
+        {
+                case 0:
+                jg(point.x+1,point.y+2);
+                x=point.x+1;
+                y=point.y+2;
+
+                track(stack,x,y);
+                if(rst1.value==0&&rst2.value==0)
+               {
+                  point.x=point.x+1;
+                  point.y=point.y+2;
+               return(0);
+               }
+               else if(rst2.value == 2)  
+               {
+                point.x=point.x+1;
+                point.y=point.y+2;
+               rst3.value=6;
+               return(0);
+               }
+               break;
+  
+              case 1:
+              jg(point.x+2,point.y+1);
+              x=point.x+2;
+              y=point.y+1;
+
+              track(stack,x,y);
+              if(rst1.value==0&&rst2.value==0)
+              {
+               point.x=point.x+2;
+               point.y=point.y+1;
+               return(0);
+              }
+              else if(rst2.value == 2) 
+             {
+              point.x=point.x+2;
+              point.y=point.y+1;
+             rst3.value=6;
+             return(0);
+             }
+              break;
+				
+             case 2:
+             jg(point.x+2,point.y-1);
+             x=point.x+2;
+             y=point.y-1;
+
+             track(stack,x,y);
+             if(rst1.value==0&&rst2.value==0)
+            {
+             point.x=point.x+2;
+             point.y=point.y-1;
+              return(0);
+            }
+            else if(rst2.value == 2)  
+             {
+             point.x=point.x+2;
+             point.y=point.y-1;
+             rst3.value=6;
+           return(0);
+            }
+             break;
+  
+           case 3:
+           jg(point.x+1,point.y-2);
+           x=point.x+1;
+           y=point.y-2;
+
+           track(stack,x,y);
+           if(rst1.value==0&&rst2.value==0)
+           {
+           point.x=point.x+1;
+           point.y=point.y-2;
+             return(0);
+            }
+           else if(rst2.value == 2)
+          {
+          point.x=point.x+1;
+          point.y=point.y-2;
+          rst3.value=6;
+          return(0);
+            }
+           break;
+				
+           case 4:
+           jg(point.x-1,point.y-2);
+           x=point.x-1;
+            y=point.y-2;
+
+             track(stack,x,y);
+           if(rst1.value==0&&rst2.value==0)
+          {
+            point.x=point.x-1;
+            point.y=point.y-2;
+            return(0);
+           }
+           else if(rst2.value == 2)  
+          {
+            point.x=point.x-1;
+            point.y=point.y-2;
+          rst3.value=6;
+          return(0);
+          }
+           break;
+
+            case 5:
+          jg(point.x-2,point.y-1);
+            x=point.x-2;
+           y=point.y-1;
+            track(stack,x,y);
+            if(rst1.value==0&&rst2.value==0)
+           {
+            point.x=point.x-2;
+            point.y=point.y-1;
+             return(0);
+             }
+             else if(rst2.value == 2) 
+             {
+             point.x=point.x-2;
+             point.y=point.y-1;
+             rst3.value=6;
+             return(0);
+            }
+             break;
+
+            case 
+			6:
+             jg(point.x-2,point.y+1);
+             x=point.x-2;
+             y=point.y+1;
+             track(stack,x,y);
+             if(rst1.value==0&&rst2.value==0)
+             {
+              point.x=point.x-2;
+              point.y=point.y+1;
+              return(0);
+             }
+            else if(rst2.value == 2)  
+            {
+              point.x=point.x-2;
+              point.y=point.y+1;
+              rst3.value=6;
+              return(0);
+            }
+           break;
+
+          case 7:
+           jg(point.x-1,point.y+2);
+            x=point.x-1;
+           y=point.y+2;
+            track(stack,x,y);
+           if(rst1.value==0&&rst2.value==0)
+           {
+           point.x=point.x-1;
+           point.y=point.y+2;
+          return(0);
+          }
+          else if(rst2.value == 2)  
+         {
+          point.x=point.x-1;
+          point.y=point.y+2;
+         rst3.value=6;
+         return(0);
+         }
+         break;
+     }
+  return(1);
+  } 
+  
+  function Vault()
+  {
+      var a=0;
+      var b=0;
+      var x=point.x;
+      var y=point.y;
+
+      n++;
+      Instack(point.x,point.y);
+    if(rst3.value==6)
+    {
+      while(stack[b]!=null)
+    {
+      if(n<=bound)
+          break;          
+       document.getElementById("rs").innerHTML= document.getElementById
+
+("rs").innerHTML+stack[b].x+stack[b].y+"  ";
+       b++;
+    }
+    if(n>bound)
+    {
+    document.getElementById("rs").innerHTML=document.getElementById
+
+("rs").innerHTML+"<br\>";
+    }
+    rst3.value=0;
+     path++;
+    }
+
+    for(;a<8;a++)
+    {
+      point.x = x;
+      point.y = y;
+      if(Next(stack,a)==0)
+      {
+        Vault(); 
+        stack[n-1]=null;
+        n--;
+      }
+    }
+
+  } 
+
+  function  Calculate()
+  {
+    Xi=document.getElementById("cols").value-1;
+    Yi=document.getElementById("rows").value-1;
+    bound=(Xi+1)*(Yi+1)-2;
+    Vault();
+  }
+  </script>
+
+</body>
+</html>
