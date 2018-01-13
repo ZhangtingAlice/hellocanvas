@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>"Map symbol"</title>
+        <meta charset="UTF-8"> 
+    </head> 
+    <body>
+        <div>
+            <p >地图符号填充</p>
+            <p >选择您要打开的文件双击开始填充：</p>
+            <input type="file" id="cfile">
+            <input type="button" value="填充线" onclick="readfile()">
+            <input type="button" value="填充点" onclick="DIAN()"><br/>
+            <input type="button" value="清空屏幕" onclick="clearCanvas()">
+            </div>
+         <div class="bg-right">
+             <canvas id="Mycanvas" width="1000" height="800"></canvas>
+         </div> 
+         <script>
+
+         var c = document.getElementById("Mycanvas");
+         var context = c.getContext("2d");
+         var xmax=new Array();//存每个图形的最大x值
+         var xmin=new Array();
+         var ymax=new Array();
+         var ymin=new Array();
+         var K=new Array();var C=new Array();
+         var XZ=new Array();
+
+         function clearCanvas()//清空屏幕
+        {  
+              var c=document.getElementById("Mycanvas");  
+              var context=c.getContext("2d");  
+              c.height=c.height;  
+        }
+
+         function Point(x,y)
+        {
+            this.x=x;
+            this.y=y;
+        }
+
+        function readfile()//显示
+        {   
+            var inputfile = document.getElementById("cfile").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var e=0;
+                string[e]=new Array();
+        
+                var l=text.length;
+                var n=0;
+
+                
+                var xpoints=new Array();
+            
+                var ypoints=new Array();
+                xpoints[e]=new Array();
+                ypoints[e]=new Array();
+
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1&&text[i].length!=2&&text[i].length!=3&&text[i].length!=4)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+
+                        xpoints[e][n]=x*3-1290000+10;
+                        ypoints[e][n]=800-y*3+9781100;
+                            
+                        string[e][n]=new Point(x,y);
+                        n++;
+                        }
+                    }
+                    else
+                    {
+                        n=0;
+                        e=e+1;
+                        string[e]=new Array();
+                        xpoints[e]=new Array();
+                        ypoints[e]=new Array();
+
+                    }
+                }
+                
+                context.beginPath();
+                context.strokeStyle = "black"; 
+                context.lineWidth =1;
+                for(i=0;i<e+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {
+                        context.moveTo((string[i][j].x)*3-1290000+10,(800-(string[i][j].y)*3+9781100));
+                        context.lineTo((string[i][j+1].x)*3-1290000+10,(800-(string[i][j+1].y)*3+9781100)); 
+                    }
+                }
+                context.stroke();
+              //填充线
+               for(i=0;i<481;i++)
+                {              
+                    xmax[i]=Math.max.apply(null, xpoints[i]);
+                    xmin[i]=Math.min.apply(null,xpoints[i]);
+                    ymax[i]=Math.max.apply(null, ypoints[i]);
+                    ymin[i]=Math.min.apply(null,ypoints[i]);                 
+                }
+            
+              for(i=0;i<481;i++)
+              {
+                  K[i]=xmax[i]-xmin[i];
+                  C[i]=ymax[i]-ymin[i];
+              }
+
+
+        
+               for(i=0;i<481;i++)
+               {
+                XZ[i]=Math.ceil((K[i]+C[i])/10);
+               }
+
+               var ii;
+        
+               context.beginPath();
+               context.lineWidth =2; 
+               context.strokeStyle="black"; 
+               var k;
+        
+               for(i=0;i<481;i++)
+               {
+                   var XJD=new Array();
+                   var YJD=new Array();
+
+               for(ii=1;ii<XZ[i]+1;ii++)//求所有交点
+               {
+                  
+                   k=0;
+                    for(j=0;j<481;j++)//并将所有交点存入交点数组
+                    {   
+                        var x1=xmin[i]+10*ii;//填充斜线
+                        var y1=ymin[i];
+                        var x2=xmin[i];
+                        var y2=ymin[i]+10*ii;
+            
+                        var x3=xpoints[i][j];
+                        var y3=ypoints[i][j];
+                        var x4=xpoints[i][j+1];
+                        var y4=ypoints[i][j+1];
+
+                        var denominator = (y2 - y1)*(x4 - x3) - (x1 - x2)*(y3 - y4); //算交点xy
+                        var x = ( (x2 - x1) * (x4 - x3) * (y3 - y1) + (y2 - y1) * (x4 - x3) * x1 - (y4 - y3) * (x2 - x1) * x3 ) / denominator ; 
+                        var y = -( (y2 - y1) * (y4 - y3) * (x3 - x1) + (x2 - x1) * (y4 - y3) * y1 - (x4 - x3) * (y2 - y1) * y3 ) / denominator;  
+                    
+                        //判断交点是否在两条线段上，是则保留，存入交点数组
+                        if ((x - x1) * (x - x2) <= 0 && (y - y1) * (y - y2) <= 0 && (x - x3) * (x - x4) <= 0 && (y - y3) * (y - y4) <= 0  )
+                        {
+                            XJD[k]=x;
+                            YJD[k]=y;
+                            k++;
+                        } 
+                    }
+
+                    for(var pp=0;pp<k;pp++) //画线
+                    {
+                        if((pp+2)%2==0)
+                        {
+                            context.moveTo(XJD[pp],YJD[pp]);
+                            context.lineTo(XJD[pp+1],YJD[pp+1]);   
+                        }
+                    } 
+                }
+                }
+            }
+            context.stroke();
+        }
+
+
+    function DIAN()
+    {   
+            var inputfile = document.getElementById("cfile").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            var q;
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+                var string=new Array();
+                var e=0;
+                string[e]=new Array();
+                var l=text.length;
+                var n=0;
+                var ii;               
+                var xpoints=new Array();     
+                var ypoints=new Array();
+                xpoints[e]=new Array();
+                ypoints[e]=new Array();
+
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1&&text[i].length!=2&&text[i].length!=3&&text[i].length!=4)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+
+                        xpoints[e][n]=x*3-1290000+10;
+                        ypoints[e][n]=800-y*3+9781100;
+                            
+                        string[e][n]=new Point(x,y);
+                        n++;
+                        }
+                    }
+                    else
+                    {
+                        n=0;
+                        e=e+1;
+                        string[e]=new Array();
+                        xpoints[e]=new Array();
+                        ypoints[e]=new Array();
+
+                    }
+                }
+                
+                context.beginPath();
+                context.strokeStyle = "green"; 
+                context.lineWidth =1;
+                for(i=0;i<e+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {
+                        context.moveTo((string[i][j].x)*3-1290000+10,(800-(string[i][j].y)*3+9781100));
+                        context.lineTo((string[i][j+1].x)*3-1290000+10,(800-(string[i][j+1].y)*3+9781100)); 
+                    }
+                }
+                context.stroke();
+
+                for(i=0;i<481;i++)
+                {
+                    xmax[i]=Math.max.apply(null, xpoints[i]);
+                    xmin[i]=Math.min.apply(null,xpoints[i]);
+                    ymax[i]=Math.max.apply(null, ypoints[i]);
+                    ymin[i]=Math.min.apply(null,ypoints[i]);                 
+                }       
+                for(i=0;i<481;i++)
+                {
+                    K[i]=xmax[i]-xmin[i];
+                    C[i]=ymax[i]-ymin[i];
+                }
+       
+                for(i=0;i<481;i++)
+                {
+                    XZ[i]=Math.ceil((K[i]+C[i])/10);//向上取整
+                }
+
+                 context.beginPath();
+                 context.lineWidth =2;
+                 context.fillStyle = "green";
+                 context.strokeStyle = "green"; 
+
+                 var k;
+        
+                 for(i=0;i<481;i++)
+                 {
+                    var XJD=new Array();
+                    var YJD=new Array();
+                for(ii=1;ii<XZ[i]+1;ii++)
+                {  
+                    k=0;                
+                    for(j=0;j<481;j++)
+                    {              
+                        var x1=xpoints[i][j];
+                        var y1=ypoints[i][j];
+                        var x2=xpoints[i][j+1];
+                        var y2=ypoints[i][j+1];
+
+                        var yy=ymin[i]+ii*10;
+    
+                        var x=(yy-y1)*(x2-x1)/(y2-y1)+x1;
+                        var y=yy;
+                    
+                        if ((x - 0) * (x - 800) <= 0 && (y - yy) * (y - yy) <= 0 && (x - x1) * (x - x2) <= 0 && (y - y1) * (y - y2) <= 0  )
+                        {
+                            XJD[k]=x;
+                            YJD[k]=yy;
+                            k++;
+                        }
+                    }
+
+                    for(var pp=0;pp<k;pp++) //画点
+                    {
+                        xmax2=Math.max.apply(Math,XJD);                     
+                         for(q=0;(XJD[pp]+q*4)<xmax2;q++)
+                         {
+                             var n=1;
+                             context.fillRect(XJD[pp]+q*4,YJD[pp],n,n);
+                             context.fillRect(XJD[pp]+q*4+n,YJD[pp]+n,2*n,n);
+                             context.fillRect(XJD[pp]+q*4+3*n,YJD[pp],n,n);
+                         }
+                    
+                    } 
+                
+                }
+                
+            }
+           
+        }
+
+        context.stroke();
+    }
+   
+</script>
+    </body>
+</html>
