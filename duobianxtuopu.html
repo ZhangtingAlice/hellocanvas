@@ -1,0 +1,380 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>"Left Drawing"</title>
+        <meta charset="UTF-8"> 
+    </head> 
+    <body>
+            <div >
+            <p >左转算法绘制多边形 </p>
+       
+            <div>
+                选择您要打开的文件：
+                <input id="fileInput" type="file" onchange="processFiles()"/>
+                <input type="submit" value="绘制" onclick="leftp()"/>
+                <input type="button" value="清空屏幕" onclick="clea()"><br>
+                
+                <canvas id="myCanvas" width="800" height="800" > </canvas>
+
+            </div>
+                
+            <script>
+                
+                function SSS(seg,nd){
+                    this.seg=seg;
+                    this.nd=nd;
+                    this.frequency=0;
+                    this.direction=0;
+                }
+               
+                function point(x,y,seg){
+                    this.x=x;
+                    this.y=y;
+                    this.seg=seg;
+                }
+
+                function clea()
+        {
+            var canvas=document.getElementById('myCanvas');
+            var ctx=canvas.getContext('2d');
+            ctx.clearRect(0,0,800,800);
+        }
+
+                var node=new Array();
+                var segmt=new Array();
+
+
+                var number=new Array();
+                var tran=new Array();
+          
+                function processFiles(){
+                    var file=document.getElementById("fileInput").files[0];
+                    var reader=new FileReader();
+                    reader.readAsText(file);
+                    reader.onload=function(e)
+                    {
+                        var str = this.result;     
+                        number= EXCT(str,number);
+                        tran=number.slice(0);
+
+                        sm();
+                        sorting(tran);
+                    }
+                }
+                
+                function EXCT(str,number){
+                    var heap= str.replace(/[^0-9.eEND-]/ig,"A");
+                    heap= heap.replace(/[^0-9.eA-]/ig,"L");
+
+                    var MUN2="";
+                    var number =new Array();
+                    var i=0;
+                    var flag=1;
+                    var n=0;
+                    var character=heap[flag];
+                    var numline=1;
+                    var isend=0;
+                    number[i++]=-1;
+                  
+                    while(character!=null){
+                        if(character=="L"){
+                            isend=1;
+                            numline++;
+                            number[i++]=-1;
+                        }
+                        if(numline<10 && isend){
+                            flag+=4;
+                            character=heap[flag];
+                            isend=0;
+                        }
+                        if(9<numline<100 && isend){
+                            flag+=5;
+                            character=heap[flag];
+                            isend=0;
+                        }
+                        if(character!="A"){
+                            n=1;
+                            MUN2+=character;
+                        }else{ 
+                            if(n){
+                                number[i++]=parseFloat(MUN2);
+                                MUN2="";
+                                n=0;
+                            }
+                        }
+                        character=heap[++flag];
+                    }   
+                    return number;
+                }
+                
+                function sorting(num){
+                    var x,y;
+                    var a=-1;
+                    var count=0;
+                    var flag=false;
+                    var c,d;
+                   
+                    for(var i=0;i<num.length;i++){
+                        if(isNaN(num[i])){
+                            continue;
+                        }
+                        else if(num[i]!=-1){      
+                            x=num[i];
+                            y=num[++i];
+
+                            
+                            for(var j=0;j<node.length;j++){
+                                c=(node[j].x==x);
+                                d=(node[j].y==y);
+                                if(c && d){
+                                    node[j].seg.push(a);
+                                    segmt[a].nd.push(j);
+                                    flag=true;
+                                    break;
+                                }
+                            }
+                            
+                            if(!flag){
+                                var nodeseg=new Array();
+                                nodeseg.push(a);
+                                var nodept=new point(x,y,nodeseg);
+                                node.push(nodept);
+                                segmt[a].nd.push(count++);
+                            }else{
+                                flag=false;
+                            }
+                            
+                          
+
+                        }else{
+                            a++; 
+                            var jd=new Array();
+                            var hd=new SSS(a,jd); 
+                            segmt.push(hd);
+                        }                 
+                    }
+                    segmt.pop();
+                    segmt.pop();
+                } 
+             
+                function leftp()
+                {
+                    var startnode;
+                    var arc=0;
+                    var position;
+                    var dw=0;
+                    var x=new Array();
+                    var y=new Array();
+
+
+                    for(var i=0;i<node.length;i++){
+                        startnode=i;
+
+                        for(var k=0;k<node[i].seg.length;k++){
+                            arc=node[i].seg[k];
+                            if(segmt[arc].frequency<2)
+                                break
+                            
+                        }
+
+                        if(segmt[arc].frequency>=2 || node[i].seg.length==1){
+                                continue;
+                        }
+                        while(arc!=-999){
+                            segmt[arc].frequency++;
+                            
+                            if(segmt[arc].frequency>2){
+                                break;
+                            }
+                           
+                            for(var j=0;j<segmt[arc].nd.length;j++){
+                                if(segmt[arc].direction){
+                                    position=segmt[arc].nd[segmt[arc].nd.length-j-1];
+                                    x.push(node[position].x);
+                                    y.push(node[position].y);
+                                }else{
+                                    position=segmt[arc].nd[j];
+                                    x.push(node[position].x);
+                                    y.push(node[position].y);
+                                }
+                                
+                                if(x.length!=1 && node[position].x==x[0] && node[position].y==y[0]){
+                                    draw(x,y)
+                                    dw=1;
+                                    break;
+                                }
+                            }
+
+
+                            startnode=position;
+                            if(segmt[arc].direction){
+                                segmt[arc].direction=0;
+                            }else{
+                                segmt[arc].direction=1;
+                            }
+    
+
+                            if(dw){
+                                dw=0;
+                                x=[];
+                                y=[];
+                                continue;
+                            }else{
+                                arc=angle(arc,position);
+                            }
+                            
+                        }
+                        
+
+                        
+                    }
+                }
+                
+                function angle(arc,position){
+                    var x,y,x1,y1,x2,y2,x3,y3,x4,y4,xx1,xx2;
+                    var pt;
+                    var ac;
+                    var dnum,dx,dy;
+                    var ag=-2;
+                    var reag;
+                    var id=-999;
+                    var flag=-1;
+                    xx1=0;
+                    x1=node[position].x;
+                    y1=node[position].y;
+                    if(segmt[arc].direction){
+                        dnum=segmt[arc].nd[segmt[arc].nd.length-2];
+                        x2=node[dnum].x;
+                        y2=node[dnum].y;
+                    }else{
+                        dnum=segmt[arc].nd[1];
+                        x2=node[dnum].x;
+                        y2=node[dnum].y;
+                    }
+                    x=(x2-x1);   y=(y2-y1);
+                    
+                    for(var i=0;i<node[position].seg.length;i++){
+                        ac=node[position].seg[i];
+                        if(segmt[ac].frequency>2 || ac==arc){
+                            continue;
+                        }
+                        dnum=segmt[ac].nd[segmt[ac].nd.length-1];
+                        dx=node[dnum].x;
+                        dy=node[dnum].y;
+                        if(dx==x1 && dy==y1){
+                            
+                                segmt[ac].direction=1;
+                            
+                            dnum=segmt[ac].nd[segmt[ac].nd.length-2];
+                            x3=node[dnum].x;
+                            y3=node[dnum].y;
+                        }else{
+                            segmt[ac].direction=0;
+                            dnum=segmt[ac].nd[1];
+                            x3=node[dnum].x;
+                            y3=node[dnum].y;
+                        }
+                        x4=(x3-x1);   y4=(y3-y1);
+                        reag=(x*y4+y*x4)/(Math.sqrt(x*x+y*y)*Math.sqrt(x4*x4+y4*y4));
+                        xx2=x*y4-x4*y;
+
+                        if(flag==-1){
+                            flag=1;
+                            id=ac;
+                        }
+                        if(flag==1){
+                            
+                            if(xx2<=xx1){
+                                xx1=xx2;
+                                ag=reag;
+                                id=ac;  
+                            }                       
+                        }
+                    }
+
+                    return id;
+                }
+               
+                function draw(x,y){
+                    var canvas=document.getElementById("myCanvas");
+                    var cxt=canvas.getContext('2d'); 
+                    cxt.lineWidth = 3;
+                   
+
+                    var len=x.length;
+                    cxt.beginPath(); 
+                    cxt.moveTo(x[0],y[0]-200);
+                    for(var i=1;i<len;i++){
+                        cxt.lineTo(x[i],y[i]-200);
+                    }
+                    cxt.stroke();     
+                }
+                
+                 function sm(){
+                    var yyy = new Array();
+                    yyy=tran.slice(0);
+                    var x,y;
+                    var jgt=new Array();
+                   
+                    jgt=RCI(yyy);
+
+                    
+                    for(var i=1;i<yyy.length;i++){
+                        if(yyy[i]!=-1){
+                            y=yyy[++i];
+                            y-=jgt[1];
+                            yyy[i]=-y;
+                            yyy[i]+=jgt[1];
+                        }else{
+                            i++;
+                        }
+                    }
+
+                    for(var i=1;i<yyy.length;i++){
+                        if(yyy[i]!=-1){
+                            yyy[i]*=3;   
+                        }else{
+                            i++;
+                        }
+                    }
+                    tran=yyy.slice(0);
+                }
+               
+                function RCI(arr){
+                    var xs,ys,xb,yb;
+                    var xm,ym;
+                    var jgt=new Array();
+                    xb=arr[1];
+                    yb=arr[2];
+                    xs=arr[1];
+                    ys=arr[2];
+                    for(var i=3;i<arr.length;i++){
+                        if(arr[i]!=-1){
+                            if(xb<arr[i]){
+                                xb=arr[i];
+                            }
+                            if(xs>arr[i]){
+                                xs=arr[i];
+                            }
+                            if(yb<arr[++i]){
+                                yb=arr[i];
+                            }
+                            if(ys>arr[i]){
+                                ys=arr[i];
+                            }
+                        }else{
+                            i++;
+                        }
+                    }
+                    xm=(xs+xb)/2;
+                    ym=(ys+yb)/2;
+                    jgt[0]=xm;
+                    jgt[1]=ym;
+
+                    return jgt;
+                }
+
+            </script>
+        </body>
+    </html>
+</Doctype> 
