@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>"MAP Douglas"</title>
+        <meta charset="UTF-8"> 
+    </head> 
+    <body>
+        <div>
+            <div >
+            <p >道格拉斯普克压缩</p>
+            <p >选择您要打开的文件，并双击压缩：</p>
+            <input type="file" id="filepick">
+            <input type="button" value="原地图显示" onclick="readfile()">
+            <input type="button" value="压缩显示" onclick=" DGLAS()">
+            <input type="button" value="清除屏幕" onclick="clearCanvas()">
+
+           
+            </div>
+            <div class="bg-right">
+                <canvas id="Mycanvas" width="1920" height="1080"></canvas>
+            </div>
+        </div>
+
+    <script>
+        var c = document.getElementById("Mycanvas");
+        var context = c.getContext("2d");
+
+        function clearCanvas()
+        {  
+              var c=document.getElementById("Mycanvas");  
+              var context=c.getContext("2d");  
+              c.height=c.height;  
+        }
+        function Point(x,y)
+        {
+            this.x=x;
+            this.y=y;
+        }
+        function readfile()
+        {   
+            
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1&&text[i].length!=2&&text[i].length!=3)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,-y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+
+                context.beginPath();
+                context.lineWidth =4; 
+                context.strokeStyle="blue"; 
+                for(i=0;i<N+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {
+                         var Xm0=string[i][j].x;
+                         var Ym0=string[i][j].y;
+                         var Xm1=string[i][j+1].x;
+                         var Ym1=string[i][j+1].y;
+                        context.moveTo((Xm0-45)*11,(Ym0+60)*11);
+                        context.lineTo((Xm1-45)*11,(Ym1+60)*11);
+                        
+                    }
+                }
+                context.stroke();
+
+            }
+        
+        }
+
+        function DGLAS()//压缩
+        {   
+            var A1=new Array();
+            var B1=new Array();
+            var C1=new Array();
+            var d=new Array();
+            var ee=0;
+            d[ee]=new Array();
+            var flag1=new Array();     
+
+            var canvas = document.getElementById("Mycanvas");
+            var context = canvas.getContext("2d");
+
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var e=0;
+                string[e]=new Array();  
+                var l=text.length;
+                var n=0;     
+                var xps=new Array();
+                var yps=new Array();
+                xps[e]=new Array();
+                yps[e]=new Array();
+                var xft=new Array();
+                var yft=new Array();
+                var xfl=new Array();
+                var yfl=new Array();
+                for(i=1;i<l-1;i++) 
+                 {   
+                     
+                     if(text[i]!="END")
+                     {   
+                         if(text[i].length!=1&&text[i].length!=2&&text[i].length!=3&&text[i].length!=4)
+                         {
+                         var x;
+                         var y;
+                         x=text[i].split(",")[0];
+                         y=text[i].split(",")[1];
+ 
+                         xps[e][n]=x;
+                         yps[e][n]=y;
+                             
+                         string[e][n]=new Point(x,y);
+                         n++;
+                         }
+                     }
+                     else
+                     {
+                         n=0;
+                         e=e+1;
+                         string[e]=new Array();
+                         xps[e]=new Array();
+                         yps[e]=new Array();
+ 
+                     }
+                 }
+
+                for(i=0;i<462;i++)
+                {
+                    for(j=0;j<string[i].length;j++)
+                    {
+                        xft[i]=xps[i][0];
+                        yft[i]=yps[i][0];
+                        xfl[i]=xps[i][j-1];
+                        yfl[i]=yps[i][j-1];
+                    }
+                }
+
+                context.beginPath();
+                context.strokeStyle = "red"; 
+                context.lineWidth =3;
+                for(i=0;i<462;i++)
+                {
+                    context.moveTo((xft[i]-45)*11,(-yft[i]+60)*11);
+                    d[i]=new Array();   
+                    for(j=0;j<xps[i].length;j++)
+                    {                                                           
+                    A1[i]=(yft[i]-yfl[i])/(Math.sqrt(Math.pow(yft[i]-yfl[i],2)+Math.pow(xft[i]-xfl[i],2)));
+                    B1[i]=(xfl[i]-xft[i])/(Math.sqrt(Math.pow(yft[i]-yfl[i],2)+Math.pow(xft[i]-xfl[i],2)));
+                    C1[i]=(xft[i]*yfl[i]-xfl[i]*yft[i])/(Math.sqrt(Math.pow(yft[i]-yfl[i],2)+Math.pow(xft[i]-xfl[i],2)));
+
+                   d[i][j]=(A1[i]*xps[i][j]+B1[i]*yps[i][j]+C1[i]);
+                   flag1[i]=Math.max.apply(null, d[i])/1.2;
+
+                      if(d[i][j]<flag1[i])
+                       {
+                        context.lineTo((xps[i][j]-45)*11,(-yps[i][j]+60)*11);
+                        context.moveTo((xps[i][j]-45)*11,(-yps[i][j]+60)*11);
+                       }
+                    
+                    }
+
+            }       
+        }
+
+                context.stroke();
+
+}  
+    </script>
+</body>
+</html>
