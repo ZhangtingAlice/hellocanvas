@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>"Polygon Area Caculate"</title>
+        <meta charset="UTF-8"> 
+    </head> 
+    <body>
+        <div>
+            <div >
+            <p >Map projection</p>
+            <p >选择您要打开的文件：</p>
+            <input type="file" id="filepick">
+            <input type="button" value="地图显示" onclick="readfile()">
+            <input type="button" value="墨卡托投影反算" onclick="MOR()">
+            <input type="button" value="清除屏幕" onclick="clearCanvas()">
+            计算平面坐标系下的地市面积：
+            <input type="button" value="计算" onclick="manjiCLU()">
+            计算经纬度坐标计算地市的面积：
+            <input type="button" value="计算" onclick="JWcalculation()">
+            
+           
+            </div>
+            <div class="bg-right">
+                <canvas id="Mycanvas" width="1920" height="1080"></canvas>
+            </div>
+        </div>
+
+    <script>
+        var c = document.getElementById("Mycanvas");
+        var context = c.getContext("2d");
+
+           //WGS84坐标系参数
+            var a = 6378137;//长轴
+            var b = 6356752.3142;//短轴
+            var PI = 3.14159265;//圆周率
+            //江苏省的经纬度范围
+            var maxJSX = 13574614.8546856;
+            var maxJSX_Y = 3704087.05481275;
+            var minJSX = 12952537.4951228;
+            var minJSX_Y = 4101836.00894706;
+            var maxJSY = 4156216.54314818;
+            var maxJSY_X = 13273585.8008774;
+            var minJSY = 3579743.801743;
+            var minJSY_X = 13413840.1216346;
+            var eps = 0.0000000000000000001;
+            var manjii=[11156.9530703,16485.373189,12394.3083044,21713.1458753,14228.3045897,8151.3970199,12928.0963132,9393.7778953,9136.1242614,5291.693925,6014.1425228,6332.007058,11850.0901372]
+            var manji = new Array();//存放面积的数组
+
+        function clearCanvas()
+        {  
+              var c=document.getElementById("Mycanvas");  
+              var context=c.getContext("2d");  
+              c.height=c.height;  
+        }
+        function Point(x,y)
+        {
+            this.x=x;
+            this.y=y;
+        }
+        //显示江苏省地图
+        function readfile()
+        {   
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1&&text[i].length!=2&&text[i].length!=3)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+
+                context.beginPath();
+                context.lineWidth =2; 
+                context.strokeStyle="black"; 
+                for(i=0;i<N+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {       
+                        
+                        context.moveTo((string[i][j].x/10000-1200)*4,1080-(string[i][j].y/10000-185)*4);
+                        context.lineTo((string[i][j+1].x/10000-1200)*4,1080-(string[i][j+1].y/10000-185)*4);
+                          
+                    }
+
+                }
+                context.stroke();
+
+            }
+        
+        }
+         //墨卡托投影反算
+        function MOR()
+        {
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1&&text[i].length!=2&&text[i].length!=3)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+
+                context.beginPath();
+                context.lineWidth =2; 
+                context.strokeStyle="blue"; 
+                for(i=0;i<N+1;i++)
+                {
+                    for(j=0;j<string[i].length-1;j++)
+                    {       
+                        //墨卡托投影反算
+                        var lng = string[i][j].x / 20037508.34 * 180;  
+                        var lat = string[i][j].y / 20037508.34 * 180;  
+                        var lng2 = string[i][j+1].x / 20037508.34 * 180;  
+                        var lat2 = string[i][j+1].y / 20037508.34 * 180; 
+                        fin = 180 / Math.PI * (2 * Math.atan(Math.exp(lat * Math.PI / 180)) - Math.PI / 2);  
+                        fin2= 180 / Math.PI * (2 * Math.atan(Math.exp(lat2 * Math.PI / 180)) - Math.PI / 2);  
+                        context.moveTo((lng)*54-5900,-(fin)*54+2050);
+                        context.lineTo((lng2)*54-5900,-(fin2)*54+2050);
+                    }
+
+                }
+                context.stroke();
+
+            }    
+                        
+                       
+        }
+
+//平面坐标系
+        function manjiCLU()
+        {  
+            var inputfile = document.getElementById("filepick").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1&&text[i].length!=2&&text[i].length!=3)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+                var PL; 
+                
+                    for(var i=0;i<string[N].length;++i)
+                    {       
+                        if (i >= 1 && i <= 6)
+                        {
+                            for (var j = 1; j < string[i].length; ++j)
+                            {
+                              if (j == string[i].length-1)
+                                    PL = PL + string[i][j].x * (string[i][1].y - string[i][j - 1].y) / 2;
+                                else
+                                    PL = PL + string[i][j].x * (string[i][j + 1].y - string[i][j - 1].y) / 2;
+                            }
+                            if (i == 6)
+                                manji.Add(Math.Abs(PL));
+                        }
+                        else
+                        {
+                            for (var j = 1; j < string[i].Length; ++j)
+                            {
+                                if (j == string[i].Length - 1)
+                                    PL = PL + string[i][j].x * (string[i][1].y - string[i][j - 1].y) / 2;
+                                else
+                                    PL = PL + string[i][j].x * (string[i][j + 1].y - string[i][j - 1].y) / 2;
+                            }
+                            manji.Add(Math.Abs(PL));
+                        }
+                        PL = 0;
+                    }
+            }
+        
+            document.write("平面平面坐标系下江苏省各块地市的面积为：<br/>"); 
+
+            for (var i = 0; i <13; i++)
+            {
+                manji[i]=manji[i]/1000000;
+              document.write(" ["+(i+1)+"] ： "+manjii[i]+"平方千米"+"<br/>"); 
+            }           
+        context.stroke();
+            }
+
+
+             //经纬度坐标计算面积
+            function JWcalculation()
+            {
+                var epp = Math.sqrt((Math.pow(a, 2) - Math.pow(b, 2)) / Math.pow(a, 2));
+                var K;
+                var A = 1 + 1.000000 / 2 * Math.pow(epp, 2) + 3.000000 / 8 * Math.pow(epp, 4) + 5.000000 / 16 * Math.pow(epp, 6);
+                var B = 1.000000 / 6 * Math.pow(epp, 2) + 3.000000 / 16 * Math.pow(epp, 4) + 3.000000 / 16 * Math.pow(epp, 6);
+                var C = 3.000000 / 80 * Math.pow(epp, 4) + 1.000000 / 16 * Math.pow(epp, 6);
+                var D = 1.000000 / 112 * Math.pow(epp, 6);
+                var N=0;
+                var inputfile = document.getElementById("filepick").files[0];
+                
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+           
+                var string=new Array();
+                var N=0;
+                string[N]=new Array();
+        
+                var l=text.length;
+                var M=0;
+                for(i=1;i<l-1;i++) 
+                {   
+                    
+                    if(text[i]!="END")
+                    {   
+                        if(text[i].length!=1&&text[i].length!=2&&text[i].length!=3)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0];
+                        y=text[i].split(",")[1];
+                        string[N][M]=new Point(x,y);
+                        M=M+1;
+                        }
+                    }
+                    else
+                    {
+                        M=0;
+                        N=N+1;
+                        string[N]=new Array();
+                    }
+                }
+
+             for (var i = 0; i<string[N].length; ++i)
+             {
+                var T=new Array();
+                T[N]= new Array();
+
+                if (i >= 1 && i <= 6)
+                {
+                    for (var j = 0; j < string[i].Length - 1; ++j)
+                    {
+                        var jj = string[i][j].y * PI / 180;
+                        var ff = string[i][j].y * PI / 180 / 2;
+                        K = 2 * Math.pow(a, 2) * (1 - Math.pow(epp, 2)) * ((string[i][j + 1].x
+                            - string[i][j].x) * PI / 180);
+                        T[i] += K * (A * Math.sin(jj / 2) * Math.cos(ff) - B * Math.sin(3 * jj / 2) * Math.cos(3 * ff) +
+                            C * Math.sin(5 * jj / 2) * Math.cos(5 * ff) - D * Math.sin(7 * jj / 2) * Math.cos(7 * ff));
+                    }
+                    if (i == 6)
+                        manji.Add(Math.abs(T[i]));
+                }
+                else
+                {
+                    for (var j = 0; j < string[i].Length - 1; ++j)
+                    {
+                        var jj = string[i][j].y * PI / 180;
+                        var ff = string[i][j].y * PI / 180 / 2;
+                        K = 2 * Math.pow(a, 2) * (1 - Math.pow(epp, 2)) * ((string[i][j + 1].x - string[i][j].x) * PI / 180);
+                        T[i] += K * (A * Math.sin(jj / 2) * Math.cos(ff) - B * Math.sin(3 * jj / 2) * Math.cos(3 * ff) +
+                            C * Math.sin(5 * jj / 2) * Math.cos(5 * ff) - D * Math.sin(7 * jj / 2) * Math.cos(7 * ff));
+                    }
+                    manji.Add(Math.abs(T[i]));
+                }
+            }
+            
+            document.write("经纬度坐标系下的每块地市面积为：<br/>"); 
+            
+            for (var i = 0; i <13; i++)
+             {
+                 manji[i]=manji[i]/1000000;
+               document.write(" ["+(i+1)+"] ： "+manji[i]+"平方千米"+"<br/>"); 
+             }           
+         context.stroke();
+
+    }     
+}
+    </script>
+</body>
+</html>
